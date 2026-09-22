@@ -1,0 +1,27 @@
+services:
+  app:
+    build: .
+    image: devops-expense-tracker:1.0
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgres://postgres:postgres@db:5432/expenses
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: expenses
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d expenses"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+volumes:
+  postgres_data:
